@@ -182,18 +182,10 @@ $Graphics = new Graphics ( $Translate, $General, $Modules, $Db, $Auth, $Notifica
 $General->online_stats();
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOTA 2 AHAHAHAHA</title>
-    <!-- Подключение стилей и скриптов из particles.php -->
-    <?php include 'particles.php'; ?>
-</head>
-<body>
-    <?php include 'stars.php'; ?>
-    <nav>
-    </nav>
-</body>
-</html>
+<?php
+// Подключение стилей и скриптов из particles.php
+include 'particles.php';
+
+// Подключение звезд из stars.php
+include 'stars.php';
+?>
