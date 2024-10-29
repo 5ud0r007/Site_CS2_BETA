@@ -29,7 +29,7 @@ if( $_POST["function"] == 'options' && isset( $_POST["setup"] ) ):
 endif;
 
 // Присвоение какого-либо значения по ключу массива в options.php
-if( $_POST["function"] == 'set' & isset( $_POST["option"] ) ) {
+if( $_POST["function"] == 'set' && isset( $_POST["option"] ) ) {
     // Возобновление сессии
     session_start();
 
