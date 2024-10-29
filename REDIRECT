@@ -1,0 +1,7 @@
+<?php
+if (!defined('LORENZO')) {
+  header('Location: /notfound');
+  exit();
+}
+?>
+<iframe src="https://lorenzo-server.ru/skins/index.php?<?php echo $auth['user_steam_id64']; ?>"></iframe>
