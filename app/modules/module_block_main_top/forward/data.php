@@ -14,29 +14,32 @@ switch ( empty( $Modules->array_modules['module_block_main_top']['setting']['cac
         if ( ! empty( $Db->db_data['LevelsRanks'] ) ):
             for ($d = 0; $d < $Db->table_count['LevelsRanks']; $d++ ):
                 // Забираем массив даннхы
-                $data['module_block_main_top'][] = $Db->queryAll( 'LevelsRanks', $Db->db_data['LevelsRanks'][$d]['USER_ID'], $Db->db_data['LevelsRanks'][$d]['DB_num'],'SELECT `name`, `rank`, `steam`, `playtime`, `value`, `kills`, `deaths`, CASE WHEN `deaths` = 0 THEN `deaths` = 1 END, TRUNCATE( `kills`/`deaths`, 2 ) AS `kd` FROM `' . $Db->db_data['LevelsRanks'][ $d ]['Table'] . '` WHERE `lastconnect` > 0 order by `value` desc LIMIT 10' );
+                $data['module_block_main_top'][] = $Db->queryAll( 'LevelsRanks', $Db->db_data['LevelsRanks'][$d]['USER_ID'], $Db->db_data['LevelsRanks'][$d]['DB_num'],'SELECT `name`, `rank`, `steam`, `playtime`, `value`, `kills`, `deaths`, CASE WHEN `deaths` = 0 THEN 1 ELSE `deaths` END, TRUNCATE( `kills`/`deaths`, 2 ) AS `kd` FROM `' . $Db->db_data['LevelsRanks'][ $d ]['Table'] . '` WHERE `lastconnect` > 0 order by `value` desc LIMIT 10' );
             endfor;
         endif;
 
         // Проверка на подключенный мод - FPS
         if ( ! empty( $Db->db_data['FPS'] ) ):
-            for ($d = 1; $d <= $Db->table_count['FPS']; $d++ ):
-                // Забираем массив даннхы
-                $data['module_block_main_top'][] = $Db->queryAll( 'FPS', 0, 0,
-                    'SELECT `fps_players`.`nickname` AS `name`,
-                                                        `fps_players`.`steam_id` AS `steam`, 
-                                                        `fps_servers_stats`.`points` AS `value`, 
-                                                        `fps_servers_stats`.`kills`, 
-                                                        `fps_servers_stats`.`deaths`, 
-                                                        `fps_servers_stats`.`playtime`,
-                                                        `fps_servers_stats`.`rank`,
-                                                        CASE WHEN `fps_servers_stats`.`deaths` = 0 THEN `fps_servers_stats`.`deaths` = 1 END, TRUNCATE( `fps_servers_stats`.`kills`/`fps_servers_stats`.`deaths`, 2 ) AS `kd`
-                                                        FROM `fps_players`
-                                                        INNER JOIN `fps_servers_stats` ON `fps_players`.`account_id` = `fps_servers_stats`.`account_id`
-                                                        WHERE `fps_servers_stats`.`server_id` = `' . $d . '` AND `fps_servers_stats`.`lastconnect` > 0
-                                                        order by `value` desc LIMIT 10' );
-            endfor;
-        endif;
+    for ($d = 1; $d <= $Db->table_count['FPS']; $d++ ):
+        // Забираем массив данных
+        $data['module_block_main_top'][] = $Db->queryAll( 'FPS', 0, 0,
+            'SELECT `fps_players`.`nickname` AS `name`,
+                    `fps_players`.`steam_id` AS `steam`, 
+                    `fps_servers_stats`.`points` AS `value`, 
+                    `fps_servers_stats`.`kills`, 
+                    `fps_servers_stats`.`deaths`, 
+                    `fps_servers_stats`.`playtime`,
+                    `fps_servers_stats`.`rank`,
+                    CASE WHEN `fps_servers_stats`.`deaths` = 0 THEN 1 ELSE `fps_servers_stats`.`deaths` END,
+                    TRUNCATE( `fps_servers_stats`.`kills`/NULLIF(`fps_servers_stats`.`deaths`, 0), 2 ) AS `kd`
+            FROM `fps_players`
+            INNER JOIN `fps_servers_stats` ON `fps_players`.`account_id` = `fps_servers_stats`.`account_id`
+            WHERE `fps_servers_stats`.`server_id` = :sid AND `fps_servers_stats`.`lastconnect` > 0
+            ORDER BY `value` DESC LIMIT 10', [
+                "sid" => $d
+            ] );
+    endfor;
+endif;
 
         // Проверка на подключенный мод - RankMeKento
         if ( ! empty( $Db->db_data['RankMeKento'] ) ):
@@ -52,7 +55,7 @@ switch ( empty( $Modules->array_modules['module_block_main_top']['setting']['cac
         $data['module_block_main_top'] = $Modules->get_module_cache('module_block_main_top');
 
 // Если кэш морально устарел, то думаю его нужно обновить
-        if ( ( empty( $data['module_block_main_top'] ) ) || ( time() > $data['module_block_main_top']['time'] ) ) {
+        if ( !isset($data['module_block_main_top']['time']) || ( time() > $data['module_block_main_top']['time'] ) ) {
 
             unset( $data['module_block_main_top'] );
 
